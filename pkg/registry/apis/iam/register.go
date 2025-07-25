@@ -56,15 +56,16 @@ func RegisterAPIService(
 	authorizer := newIAMAuthorizer(accessClient, legacyAccessClient)
 
 	builder := &IdentityAccessManagementAPIBuilder{
-		store:              store,
-		coreRolesStorage:   coreRolesStorage,
-		sso:                ssoService,
-		authorizer:         authorizer,
-		legacyAccessClient: legacyAccessClient,
-		accessClient:       accessClient,
-		display:            user.NewLegacyDisplayREST(store),
-		reg:                reg,
-		enableAuthZApis:    features.IsEnabledGlobally(featuremgmt.FlagKubernetesAuthzApis),
+		store:               store,
+		coreRolesStorage:    coreRolesStorage,
+		sso:                 ssoService,
+		authorizer:          authorizer,
+		legacyAccessClient:  legacyAccessClient,
+		accessClient:        accessClient,
+		display:             user.NewLegacyDisplayREST(store),
+		reg:                 reg,
+		enableAuthZApis:     features.IsEnabledGlobally(featuremgmt.FlagKubernetesAuthzApis),
+		enableAuthnMutation: features.IsEnabledGlobally(featuremgmt.FlagKubernetesAuthnMutation),
 	}
 	apiregistration.RegisterAPI(builder)
 
@@ -126,7 +127,7 @@ func (b *IdentityAccessManagementAPIBuilder) UpdateAPIGroupInfo(apiGroupInfo *ge
 	storage[teamBindingResource.StoragePath()] = team.NewLegacyBindingStore(b.store)
 
 	userResource := legacyiamv0.UserResourceInfo
-	legacyStore := user.NewLegacyStore(b.store, b.legacyAccessClient)
+	legacyStore := user.NewLegacyStore(b.store, b.legacyAccessClient, b.enableAuthnMutation)
 
 	// TODO: Figure out what's missing for the DualWriter setup in a MT setup
 	// MT app is unable to start if DW is configured
