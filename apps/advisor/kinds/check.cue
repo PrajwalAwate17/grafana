@@ -1,6 +1,6 @@
 package advisor
 
-check: {
+check: { 
 	kind:	   "Check"
 	pluralName: "Checks"
 	current:	"v0alpha1"
